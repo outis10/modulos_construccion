@@ -1,0 +1,89 @@
+<odoo>
+  <data>
+    <record id="seq_test" model="ir.sequence">
+    <field name="name">Requisiciones secuencia</field>
+    <field name="code">material_requisition.requisition_seq</field>
+    <field name="prefix">REQ</field>
+    <field name="padding">6</field>
+    <field name="company_id" eval="False"/>
+</record>
+    <record id="requisition_view_form" model="ir.ui.view">
+        <field name="name">requisition.form</field>
+        <field name="model">material_requisition.requisition</field>
+        <field name="arch" type="xml">
+            <form string="Requisiciones Form">
+                <sheet>
+                    <group>
+                        <field name="name" readonly="1"/>
+                        <field name="user_id"/>
+                        <field name="reason"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- explicit list view definition -->
+
+    <record model="ir.ui.view" id="requisition_view_list">
+      <field name="name">material_requisition list</field>
+      <field name="model">material_requisition.requisition</field>
+      <field name="arch" type="xml">
+        <tree>
+          <field name="name"/>
+          <field name="user_id"/>
+          <field name="reason"/>
+        </tree>
+      </field>
+    </record>
+
+
+    <!-- actions opening views on models -->
+
+    <record model="ir.actions.act_window" id="requisition_action_window">
+      <field name="name">Requisiciones</field>
+      <field name="res_model">material_requisition.requisition</field>
+      <field name="view_mode">tree,form</field>
+      <field name="help" type="html">
+        <p class="oe_view_nocontent_smilling_face"> Create the first course </p>
+        <p> More information refer to this tuto. </p>
+      </field>
+    </record>
+
+
+    <!-- server action to the one above -->
+    <!--
+    <record model="ir.actions.server" id="material_requisition.action_server">
+      <field name="name">material_requisition server</field>
+      <field name="model_id" ref="model_material_requisition_requisition"/>
+      <field name="state">code</field>
+      <field name="code">
+        action = {
+          "type": "ir.actions.act_window",
+          "view_mode": "tree,form",
+          "res_model": self._name,
+        }
+      </field>
+    </record>
+    -->
+
+    <!-- Top menu item -->
+
+    <menuitem name="Requisiciones" id="requisition_menu_root"/>
+
+    <!-- menu categories -->
+
+    <menuitem name="Requisiciones" id="requisition_menu" parent="requisition_menu_root"/>
+    <!--
+    <menuitem name="Menu 2" id="material_requisition.menu_2" parent="material_requisition.menu_root"/>
+    -->
+    <!-- actions -->
+
+    <menuitem name="List" id="requisition_list" parent="requisition_menu"
+              action="requisition_action_window"/>
+    <!--
+    <menuitem name="Server to list" id="material_requisition" parent="material_requisition.menu_2"
+              action="material_requisition.action_server"/>
+    -->
+  </data>
+</odoo>
