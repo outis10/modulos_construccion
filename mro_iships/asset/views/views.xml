@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+	<data>
+
+        <!-- Top menu item -->
+        <menuitem name="Mantenimiento"
+            id="base.menu_mro_root"
+            sequence="80"/>
+
+        <!-- Asset menu -->
+        <menuitem name="Activos"
+            id="menu_maintenance_assets"
+            parent="base.menu_mro_root"
+            groups="asset.group_mro_customer"
+            sequence="9"/>
+
+        <!-- Asset Tree View  -->
+        <record id="assets_tree_view" model="ir.ui.view">
+            <field name="name">asset.asset.tree</field>
+            <field name="model">asset.asset</field>
+            <field name="arch" type="xml">
+                <tree string="Activos">
+                    <field name="category_id"/>
+                    <field name="name"/>
+                    <field name="asset_number"/>
+                    <field name="is_leased"/>
+                    <field name="responsible_id"/>
+                    <field name="assigned_id"/>
+                    <field name="customer_id"/>
+                    <field name="parent_id"/>
+                </tree>
+            </field>
+        </record>
+
+        <!-- Asset Form View  -->
+        <record id="assets_form_view" model="ir.ui.view">
+            <field name="name">asset.asset.form</field>
+            <field name="model">asset.asset</field>
+            <field name="arch" type="xml">
+                <form string="Activos" version="7.0">
+
+                    <sheet>
+                        <div class="oe_right oe_button_box" style="width: 300px;" name="buttons">
+                        </div>
+                        <field name="image_medium" widget="image" class="oe_avatar oe_left"/>
+                        <div class="oe_title">
+                            <label for="name" class="oe_edit_only"/>
+                            <h1>
+                                <field name="name"/>
+                            </h1>
+
+                        </div>
+                        <group>
+                          <group>
+                            <field name="parent_id"/>
+                            <field name="category_id"/>
+                          </group>
+                          <group>
+                            <field name="asset_number"/>
+
+                          </group>
+
+                        </group>
+                        <group>
+                            <group>
+                                <field name="is_leased"/>
+                                <field name="responsible_id"/>
+                            </group>
+                            <group>
+                                <field name="assigned_id"/>
+                                <field name="customer_id"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page name="info" string="Info">
+                                <!--<group>
+                                    <group>
+                                        <field name="property_stock_asset" domain="[('usage','=','asset')]"/>
+
+                                    </group>
+                                    <group>
+                                    </group>
+                                </group>-->
+                                <group string="Arendamiento">
+                                    <group>
+                                    <field name="contract_date"/>
+                                    <field name="leasing_start_date"/>
+                                    <field name="leasing_end_date"/>
+                                    </group>
+
+                                </group>
+                            </page>
+                        </notebook>
+                     </sheet>
+                     <div class="oe_chatter">
+                            <field name="message_follower_ids" widget="mail_followers"/>
+                            <field name="message_ids" widget="mail_thread"/>
+                    </div>
+                </form>
+            </field>
+        </record>
+
+
+        <!-- Asset Search  -->
+        <record model="ir.ui.view" id="assets_search">
+            <field name="name">Asset Search</field>
+            <field name="model">asset.asset</field>
+            <field name="arch" type="xml">
+                <search string="Asset Search">
+                    <field name="category_id"/>
+                    <field name="name"/>
+                    <field name="asset_number"/>
+                    <field name="is_leased"/>
+                    <field name="responsible_id"/>
+                    <field name="assigned_id"/>
+                    <field name="customer_id"/>
+                    <field name="parent_id"/>
+
+                    <separator />
+                    <group expand="0" string="Group By">
+                      <filter name="group_name"
+                              string="Name"
+                              context="{'group_by': 'name'}"
+                              />
+                      <filter name="group_assigned"
+                              string="Assigned"
+                              context="{'group_by': 'assigned_id'}"
+                              />
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="action_assets" model="ir.actions.act_window">
+            <field name="name">Assets</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">asset.asset</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="view_id" eval="False"/>
+        </record>
+
+
+        <record model="ir.actions.act_window.view" id="action_assets_tree_view">
+            <field name="sequence" eval="1"/>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="assets_tree_view"/>
+            <field name="act_window_id" ref="action_assets"/>
+        </record>
+
+        <record model="ir.actions.act_window.view" id="action_assets_form_view">
+            <field name="sequence" eval="2"/>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="assets_form_view"/>
+            <field name="act_window_id" ref="action_assets"/>
+        </record>
+
+        <!-- Asset item -->
+        <menuitem name="Activos"
+            action="action_assets"
+            id="menu_maintenance_assets_assets"
+            parent="menu_maintenance_assets"
+            groups="asset.group_mro_customer"
+            sequence="100"/>
+
+
+
+        <!-- Management Asset item
+        <menuitem name="Manage states"
+            action="action_management_assets"
+            id="menu_maintenance_assets_management"
+            parent="menu_maintenance_assets"
+            groups="asset.group_mro_user"
+            sequence="100"/>
+-->
+        <!-- Report menu
+        <menuitem name="Reports"
+            id="menu_maintenance_report"
+            parent="base.menu_mro_root"
+            groups="asset.group_mro_customer"
+            sequence="30"/>
+-->
+        <!-- Configuration menu -->
+        <menuitem name="Configuration"
+            id="menu_maintenance_config"
+            parent="base.menu_mro_root"
+            groups="asset.group_mro_manager"
+            sequence="200"/>
+
+
+
+
+        <!-- Asset Tags Tree View -->
+        <record id="asset_category_tree_view" model="ir.ui.view">
+            <field name="name">asset.category.tree</field>
+            <field name="model">asset.category</field>
+            <field name="arch" type="xml">
+                <tree string="Categorias" editable="top">
+                    <field name="name"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="action_asset_category" model="ir.actions.act_window">
+            <field name="name">Categorias de Activos</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">asset.category</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree</field>
+        </record>
+
+        <!-- Asset Tags item -->
+        <menuitem name="Categorias de activos"
+            action="action_asset_category"
+            id="menu_asset_category"
+            parent="menu_maintenance_config"
+            groups="asset.group_mro_manager"
+            sequence="100"/>
+
+ 	</data>
+</odoo>

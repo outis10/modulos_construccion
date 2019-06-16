@@ -1,0 +1,12 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_mro_request_manager,mro.request manager,model_mro_request,asset.group_mro_manager,1,1,1,1
+access_mro_request_user,mro.request user,model_mro_request,asset.group_mro_user,1,1,0,0
+access_mro_request_customer,mro.request customer,model_mro_request,asset.group_mro_customer,1,1,0,0
+access_mro_request_create,mro.request create,model_mro_request,mro.group_create_maintenance_request,0,0,1,0
+access_mro_request_responsible,mro.request responsible,model_mro_request,asset.group_mro_responsible,1,1,1,0
+access_mro_order_manager,mro.order manager,model_mro_order,asset.group_mro_manager,1,1,1,1
+access_mro_order_user,mro.order user,model_mro_order,asset.group_mro_user,1,1,1,1
+access_mro_audit_type_manager,mro.audit_type manager,model_mro_audit_type,asset.group_mro_manager,1,1,1,1
+access_mro_audit_type_user,mro.audit_type user,model_mro_audit_type,asset.group_mro_user,1,1,1,1
+access_mro_audit_type_customer,mro.request customer,model_mro_audit_type,asset.group_mro_customer,1,0,0,0
+access_mro_audit_type_responsible,mro.request responsible,model_mro_audit_type,asset.group_mro_responsible,1,0,0,0
