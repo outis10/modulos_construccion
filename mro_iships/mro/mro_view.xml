@@ -3,10 +3,11 @@
 	<data>
 
         <!-- Top menu item -->
-        <menuitem name="Maintenance"
+        <menuitem name="Mantenimiento"
             id="base.menu_mro_root"
             groups="asset.group_mro_customer"
-            sequence="80"/>
+            sequence="80"
+            web_icon="mro,static/description/icon.png" />
 
         <!-- Maintenance menu -->
         <menuitem name="Maintenance"
@@ -23,9 +24,15 @@
                     <field name="message_unread" invisible="1"/>
                     <field name="name"/>
                     <field name="execution_date" string="Date"/>
-                    <field name="asset_id"/>
-                    <field name="cause"/>
                     <field name="state"/>
+                    <field name="asset_id"/>
+                    <field name="audit_type_id"/>
+                    <field name="audit_type_id"/>
+                    <field name="audit_category_id"/>
+                    <field name="audit_subcategory_id"/>
+                    <field name="audit_area_afectacion_id"/>
+                    <field name="audit_issue_id"/>
+
                 </tree>
             </field>
         </record>
@@ -44,26 +51,28 @@
                     </header>
                     <sheet>
                         <div class="oe_title">
-                            <h1>Maintenance Request <field name="name" class="oe_inline" readonly="1"/></h1>
+                            <h1>Solicitud de mantenimiento <field name="name" class="oe_inline" readonly="1"/></h1>
                         </div>
                         <group>
                             <group>
                                 <field name="asset_id"/>
-                                <field name="audit_type_id"/>
-                                <field name="audit_category_id"/>
-                                <field name="audit_subcategory_id"/>
+                                <field name="audit_type_id" widget="selection" context="{'audit_type_id':'audit_type_id'}"/>
+                                <field name="audit_category_id" widget="selection"  /><!--domain="('mro_audit_type_ids', '=', audit_type_id)"-->
+                                <field name="audit_subcategory_id" widget="selection"/>
                             </group>
                             <group>
-                                <field name="audit_task_id"/>
+                                <field name="audit_area_afectacion_id" widget="selection"/>
+                                <field name="audit_issue_id" widget="selection"/>
                                 <!--<field name="requested_date" attrs="{'invisible':[('breakdown','=',True),('state','=','draft')],'readonly':[('state','!=','draft')]}"/>-->
                                 <field name="execution_date"/>
+                                <field name="issue_level"/>
                                 <field name="create_user_id" readonly="1"/>
                             </group>
                         </group>
-                        <group string="Reject Reason" states="reject">
+                        <group string="Razón de rechazo?" states="reject">
                             <field name="reject_reason" colspan="4" nolabel="1"/>
                         </group>
-                        <group string="Description">
+                        <group string="Descripcion">
                             <field name="description" colspan="4" nolabel="1"/>
                         </group>
                     </sheet>
@@ -111,13 +120,35 @@
             parent="menu_mro_maintenance"
             sequence="1"/>
 
+         <!-- AuditType Form View -->
+        <record id="mro_audit_category_form_view" model="ir.ui.view">
+            <field name="name">mro.audit_type.tree</field>
+            <field name="model">mro.audit_type</field>
+            <field name="arch" type="xml">
+                <form string="Tipo de auditorua" >
+                    <sheet>
+                        <div class="oe_title">
+                            <h1>Tipo de auditoria </h1>
+                        </div>
+                        <group>
 
-        <!-- Asset Tags Tree View -->
+                                <field name="name"/>
+                            <field name="mro_audit_category_ids"/>
+                        </group>
+
+
+
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- Audit type Tree View -->
         <record id="mro_audit_type_tree_view" model="ir.ui.view">
             <field name="name">mro.audit_type.tree</field>
             <field name="model">mro.audit_type</field>
             <field name="arch" type="xml">
-                <tree string="Tipos de Auditoria" editable="top">
+                <tree string="Tipos de Auditoria">
                     <field name="name"/>
                 </tree>
             </field>
@@ -128,16 +159,223 @@
             <field name="type">ir.actions.act_window</field>
             <field name="res_model">mro.audit_type</field>
             <field name="view_type">form</field>
-            <field name="view_mode">tree</field>
+            <field name="view_mode">tree,form</field>
         </record>
 
-        <!-- Asset Tags item -->
+        <!-- Audit Type item -->
         <menuitem name="Tipos de auditoria"
             action="action_mro_audit_type"
             id="menu_mro_audit_type"
             parent="asset.menu_maintenance_config"
             groups="asset.group_mro_manager"
             sequence="100"/>
+
+        <!-- Category form View -->
+        <record id="mro_audit_category_form_view" model="ir.ui.view">
+            <field name="name">mro.audit_category.tree</field>
+            <field name="model">mro.audit_category</field>
+            <field name="arch" type="xml">
+                <form string="Categorias" version="7.0">
+                    <sheet>
+                        <div class="oe_title">
+                            <h1>Categorias de auditoria </h1>
+                        </div>
+                        <group>
+
+                            <field name="name"/>
+                            <field name="mro_audit_subcategory_ids"/>
+                        </group>
+
+
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <!-- category Tree View -->
+        <record id="mro_audit_category_tree_view" model="ir.ui.view">
+            <field name="name">mro.audit_category.tree</field>
+            <field name="model">mro.audit_category</field>
+            <field name="arch" type="xml">
+                <tree string="Categoria de Auditoria" >
+                    <field name="name"/>
+                </tree>
+            </field>
+        </record>
+        <record id="action_mro_audit_category" model="ir.actions.act_window">
+            <field name="name">Categorias de Auditoria</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">mro.audit_category</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <!-- Asset Tags item -->
+        <menuitem name="Categorias de auditoria"
+            action="action_mro_audit_category"
+            id="menu_mro_audit_category"
+            parent="asset.menu_maintenance_config"
+            groups="asset.group_mro_manager"
+            sequence="100"/>
+
+
+
+        <!-- SubCategoria Form View -->
+        <record id="mro_audit_subcategory_form_view" model="ir.ui.view">
+            <field name="name">mro.audit_subcategory.tree</field>
+            <field name="model">mro.audit_subcategory</field>
+            <field name="arch" type="xml">
+                <form string="Subcategorias" >
+                    <sheet>
+                        <div class="oe_title">
+                            <h1>Subcategorias de auditoria </h1>
+                        </div>
+                        <group>
+
+                                <field name="name"/>
+                        </group>
+
+
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <!-- Subcategory Tree View -->
+        <record id="mro_audit_subcategory_tree_view" model="ir.ui.view">
+            <field name="name">mro.audit_subcategory.tree</field>
+            <field name="model">mro.audit_subcategory</field>
+            <field name="arch" type="xml">
+                <tree string="Subcategoria de Auditoria" >
+                    <field name="name"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="action_mro_audit_subcategory" model="ir.actions.act_window">
+            <field name="name">SubCategoria de Auditoria</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">mro.audit_subcategory</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <!-- Asset Tags item -->
+        <menuitem name="Subcategoria de auditoria"
+            action="action_mro_audit_subcategory"
+            id="menu_mro_audit_subcategory"
+            parent="asset.menu_maintenance_config"
+            groups="asset.group_mro_manager"
+            sequence="120"/>
+
+ <!-- Afectacion Form View -->
+        <record id="mro_audit_afectacion_form_view" model="ir.ui.view">
+            <field name="name">mro.audit_afectacion.tree</field>
+            <field name="model">mro.audit_area_afectacion</field>
+            <field name="arch" type="xml">
+                <form string="Área afectación" >
+                    <sheet>
+                        <div class="oe_title">
+                            <h1>Área de afectación</h1>
+                        </div>
+                        <group>
+
+                                <field name="name"/>
+                        </group>
+
+
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <!-- Subcategory Tree View -->
+        <record id="mro_audit_afectacion_tree_view" model="ir.ui.view">
+            <field name="name">mro.audit_afectacion.tree</field>
+            <field name="model">mro.audit_area_afectacion</field>
+            <field name="arch" type="xml">
+                <tree string="Área de afectación" >
+                    <field name="name"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="action_mro_audit_afectacion" model="ir.actions.act_window">
+            <field name="name">Área de afectacion</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">mro.audit_area_afectacion</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <!-- Asset Tags item -->
+        <menuitem name="Área de afectacion"
+            action="action_mro_audit_afectacion"
+            id="menu_mro_audit_afectacion"
+            parent="asset.menu_maintenance_config"
+            groups="asset.group_mro_manager"
+            sequence="125"/>
+
+
+        <!-- Issue Form View-->
+        <record id="mro_audit_issue_form_view" model="ir.ui.view">
+            <field name="name">mro.audit_issue.tree</field>
+            <field name="model">mro.audit_issue</field>
+            <field name="arch" type="xml">
+                <form string="Listado de Hallazgos" >
+                    <sheet>
+                        <div class="oe_title">
+                            <h1>Listado de Hallazgos</h1>
+                        </div>
+                        <group>
+
+                            <field name="mro_audit_type_id"/>
+                            <field name="mro_audit_category_id"/>
+                            <field name="mro_audit_subcategory_id"/>
+                        </group>
+                        <group>
+                            <field name="mro_audit_area_afectacion_id"/>
+                            <field name="hallazgo"/>
+
+                        </group>
+
+
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- Issue Tree View-->
+        <record id="mro_audit_issue_tree_view" model="ir.ui.view">
+            <field name="name">mro.audit_issue.tree</field>
+            <field name="model">mro.audit_issue</field>
+            <field name="arch" type="xml">
+                <tree string="Listado de Hallazgos">
+
+                    <field name="mro_audit_type_id"/>
+                    <field name="mro_audit_category_id"/>
+                    <field name="mro_audit_subcategory_id"/>
+                    <field name="mro_audit_area_afectacion_id"/>
+                    <field name="hallazgo"/>
+
+                </tree>
+            </field>
+        </record>
+
+        <record id="action_mro_audit_issue" model="ir.actions.act_window">
+            <field name="name">Hallazgos</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">mro.audit_issue</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <!-- Asset Tags item-->
+        <menuitem name="Hallazgo"
+            action="action_mro_audit_issue"
+            id="menu_mro_audit_issue"
+            parent="asset.menu_maintenance_config"
+            groups="asset.group_mro_manager"
+            sequence="140"/>
+-->
+
 
         <!-- Maintenance order menu
         <record id="mro_order_tree_view" model="ir.ui.view">

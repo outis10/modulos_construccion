@@ -5,7 +5,9 @@
         <!-- Top menu item -->
         <menuitem name="Mantenimiento"
             id="base.menu_mro_root"
-            sequence="80"/>
+            sequence="80"
+            web_icon="asset,static/description/img/icon.jpg"/>
+/>
 
         <!-- Asset menu -->
         <menuitem name="Activos"
@@ -132,7 +134,7 @@
         </record>
 
         <record id="action_assets" model="ir.actions.act_window">
-            <field name="name">Assets</field>
+            <field name="name">Activos Fijos</field>
             <field name="type">ir.actions.act_window</field>
             <field name="res_model">asset.asset</field>
             <field name="view_type">form</field>
@@ -181,7 +183,7 @@
             sequence="30"/>
 -->
         <!-- Configuration menu -->
-        <menuitem name="Configuration"
+        <menuitem name="Configuracion"
             id="menu_maintenance_config"
             parent="base.menu_mro_root"
             groups="asset.group_mro_manager"

@@ -11,36 +11,74 @@ from odoo import api, fields, models, _
 from odoo import netsvc
 import odoo.addons.decimal_precision as dp
 
+
+
 class mro_audit_type(models.Model):
     _name ='mro.audit_type'
     _description = 'Tipo de Auditoria'
-
     name = fields.Char('Tipo Auditoria', size=64)
+
+    mro_audit_category_ids = fields.Many2many(
+        'mro.audit_category',
+        'audit_type_category_m2m',
+        'audit_type_id',
+        'audit_category_id',
+        'Categorias', )
+
 
 class mro_audit_category(models.Model):
     _name = 'mro.audit_category'
     _description = 'Categorias de Auditoria'
     name = fields.Char('Categoria', size=64)
 
+    mro_audit_subcategory_ids = fields.Many2many(
+        'mro.audit_subcategory',
+        'audit_category_subcategory_m2m',
+        'audit_category_id',
+        'audit_subcategory_id',
+        'Tipos de Subcategoria', )
+
+
 class mro_audit_subcategory(models.Model):
     _name = 'mro.audit_subcategory'
     _description = 'Subcategorias'
-    name = fields.Char('Subcategory', size=64)
+    name = fields.Char('Subcategoria', size=64)
+    #mro_audit_category_id = fields.Many2one('mro.audit_category', 'Categoria', required=False, )
 
-class mro_audit_task(models.Model):
-    _name = 'mro.audit_task'
-    _description = 'Tareas resultado de an hallazgo'
-    name = fields.Char('Task', size=64)
+
+
+class mro_audit_area_afectacion(models.Model):
+    _name = 'mro.audit_area_afectacion'
+    _description = 'Area afectacion'
+    name = fields.Char('Área afectación', size=64)
+
+
+class mro_issue(models.Model):
+    _name = 'mro.audit_issue'
+    _description = 'Lista de hallazgos'
+    _rec_name = 'hallazgo'
+
+
+    mro_audit_type_id = fields.Many2one('mro.audit_type', 'Tipo Auditoria', required=True, )
+    mro_audit_category_id = fields.Many2one('mro.audit_category', 'Categoria', required=True, )
+    mro_audit_subcategory_id = fields.Many2one('mro.audit_subcategory', 'Subcategoria',  required=True, )
+    mro_audit_area_afectacion_id= fields.Many2one('mro.audit_area_afectacion', 'Área afectación', required=True, )
+    #category = fields.Char('Categoria', size=64)
+    #subcategoria = fields.Char('Subcategoria', size=64)
+    #afectacion = fields.Char('Categoria', size=64)
+    hallazgo = fields.Char('Hallazgo', size=64)
+
+
 
 
 class mro_request(models.Model):
     _name = 'mro.request'
     _description = 'Maintenance Request'
     _inherit = ['mail.thread']
-
+#Todo: regresar a Claim
     STATE_SELECTION = [
         ('draft', 'Draft'),
-        ('claim', 'Claim'),
+        ('claim', 'Solicitada'),
         ('run', 'Execution'),
         ('done', 'Done'),
         ('reject', 'Rejected'),
@@ -50,7 +88,7 @@ class mro_request(models.Model):
     ISSUE_LEVEL = [
         ('bajo', 'Bajo'),
         ('medio', 'Medio'),
-        ('critico', 'Crítico'),
+        ('alto', 'Alto'),
 
     ]
 
@@ -65,29 +103,100 @@ class mro_request(models.Model):
             return 'mro.mt_request_rejected'
         return super(mro_request, self)._track_subtype(init_values)
     """
-    name = fields.Char('Reference', size=64)
+    name = fields.Char('Referencia', size=64)
     state = fields.Selection(STATE_SELECTION, 'Status', readonly=True,
          track_visibility='onchange', default='draft')
 
-    new_field_id = fields.Many2one(comodel_name="", string="", required=False, )
-    issue_level = fields.Selection(ISSUE_LEVEL, 'Nivel Hallazgo',
+
+    issue_level = fields.Selection(ISSUE_LEVEL, 'Criticidad', required=True,
                              track_visibility='onchange', default='bajo')
 
-    audit_type_id = fields.Many2one('mro.audit_type', 'Tipo Auditoria', required=True,  states={'draft': [('readonly', False)]})
-    audit_category_id = fields.Many2one('mro.audit_category', 'Categoria', required=True,  states={'draft': [('readonly', False)]})
-    audit_subcategory_id = fields.Many2one('mro.audit_subcategory', 'Subcategoria', required=True,  states={'draft': [('readonly', False)]})
-    audit_task_id = fields.Many2one('mro.audit_task', 'Tarea', required=True,  states={'draft': [('readonly', False)]})
+    audit_type_id = fields.Many2one('mro.audit_type', 'Tipo Auditoria', required=True,
+                                    states={'draft': [('readonly', False)]})
+    audit_category_id = fields.Many2one('mro.audit_category', 'Categoria',
+                                        required=True,
+                                        states={'draft': [('readonly', False)]})
+    audit_subcategory_id = fields.Many2one('mro.audit_subcategory', 'Subcategoria', required=True,
+                                           states={'draft': [('readonly', False)]})
+    audit_area_afectacion_id = fields.Many2one('mro.audit_area_afectacion', 'Afectación', required=True,
+                                           states={'draft': [('readonly', False)]})
 
-    asset_id = fields.Many2one('asset.asset', 'Asset', required=True, readonly=True, states={'draft': [('readonly', False)]})
-    cause = fields.Char('Cause', size=64, translate=True, required=True, readonly=True, states={'draft': [('readonly', False)]})
-    description = fields.Text('Description', required=True, readonly=True, states={'draft': [('readonly', False)]})
-    reject_reason = fields.Text('Reject Reason', readonly=True)
-    requested_date = fields.Datetime('Requested Date', required=True, readonly=True, states={'draft': [('readonly', False)]}, help="Date requested by the customer for maintenance.", default=time.strftime('%Y-%m-%d %H:%M:%S'))
-    execution_date = fields.Datetime('Execution Date', required=True, readonly=True, states={'draft':[('readonly',False)],'claim':[('readonly',False)]}, default=time.strftime('%Y-%m-%d %H:%M:%S'))
+    audit_issue_id = fields.Many2one('mro.audit_issue', 'Hallazgos', required=True,
+                                     states={'draft': [('readonly', False)]})
+    asset_id = fields.Many2one('asset.asset', 'Activo', domain=[('category_id.name', '=', "Edificio")],
+                               required=True, readonly=True,
+                               states={'draft': [('readonly', False)]})
+    cause = fields.Char('Cause', size=64, translate=True, readonly=True, states={'draft': [('readonly', False)]})
+    description = fields.Text('Descripción', required=True, readonly=True, states={'draft': [('readonly', False)]})
+    reject_reason = fields.Text('Razón rechazo', readonly=True)
+    requested_date = fields.Datetime('Fecha solicitud', required=True, readonly=True,
+                                     states={'draft': [('readonly', False)]},
+                                     help="Date requested by the customer for maintenance.",
+                                     default=time.strftime('%Y-%m-%d %H:%M:%S'))
+    execution_date = fields.Datetime('Fecha ejecución', required=True, readonly=True,
+                                     states={'draft':[('readonly',False)],'claim':[('readonly',False)]},
+                                     default=time.strftime('%Y-%m-%d %H:%M:%S'))
     breakdown = fields.Boolean('Breakdown', readonly=True, states={'draft': [('readonly', False)]}, default=False)
-    create_user_id = fields.Many2one('res.users', 'Responsible')
+    create_user_id = fields.Many2one('res.users', 'Responsable', default=lambda self: self._uid)
 
 
+
+    @api.onchange('audit_type_id')
+    def onchange_audit_type_id(self):
+        listids = []
+        if self.audit_type_id.mro_audit_category_ids:
+            for each in self.audit_type_id.mro_audit_category_ids:
+                listids.append(each.id)
+            print(listids)
+        return {'domain': {'audit_category_id': [('id', 'in', listids)]}}
+
+
+    @api.onchange('audit_category_id')
+    def onchange_audit_category_id(self):
+        listids = []
+        if self.audit_category_id.mro_audit_subcategory_ids:
+            for each in self.audit_category_id.mro_audit_subcategory_ids:
+                listids.append(each.id)
+            print(listids)
+        return {'domain': {'audit_subcategory_id': [('id', 'in', listids)]}}
+
+    @api.onchange('audit_subcategory_id')
+    def onchange_audit_subcategory_id(self):
+        print('Entrnado al metodo', self.audit_subcategory_id.id)
+        if self.audit_type_id and self.audit_category_id and self.audit_subcategory_id:
+            issues = self.env['mro.audit_issue'].search(['&', ('mro_audit_type_id.id', '=', self.audit_type_id.id),
+                                                         ('mro_audit_category_id.id', '=', self.audit_category_id.id),
+                                                         ('mro_audit_subcategory_id.id', '=', self.audit_subcategory_id.id)])
+            print('issue:', issues)
+            listids = []
+            readylistids = []
+            if issues:
+                for each in issues:
+                    listids.append(each.mro_audit_area_afectacion_id.id)
+                print(listids)
+                readylistids = list(dict.fromkeys(listids))
+                print(readylistids)
+            return {'domain': {'audit_area_afectacion_id': [('id', 'in', listids)]}}
+
+    @api.onchange('audit_area_afectacion_id')
+    def onchange_audit_area_afectacion_id(self):
+
+        if self.audit_type_id and self.audit_category_id \
+                and self.audit_subcategory_id and self.audit_area_afectacion_id:
+            issues = self.env['mro.audit_issue'].search(['&', ('mro_audit_type_id.id', '=', self.audit_type_id.id),
+                                         ('mro_audit_category_id.id', '=', self.audit_category_id.id),
+                                         ('mro_audit_subcategory_id.id', '=', self.audit_subcategory_id.id),
+                                         ('mro_audit_area_afectacion_id.id', '=', self.audit_area_afectacion_id.id)])
+            print('HALLAZGOS:', issues)
+            listids = []
+            readylistids = []
+            if issues:
+                for each in issues:
+                    listids.append(each.id)
+                print(listids)
+                readylistids = list(dict.fromkeys(listids))
+                print(readylistids)
+            return {'domain': {'audit_issue_id': [('id', 'in', listids)]}}
 
     @api.onchange('requested_date')
     def onchange_requested_date(self):
@@ -105,7 +214,7 @@ class mro_request(models.Model):
                 value['requested_date'] = time.strftime('%Y-%m-%d %H:%M:%S')
             request.write(value)
 
-    """def action_confirm(self):
+    def action_confirm(self):
         order = self.env['mro.order']
         order_id = False
         for request in self:
@@ -117,13 +226,13 @@ class mro_request(models.Model):
                 'state': 'draft',
                 'maintenance_type': 'bm',
                 'asset_id': request.asset_id.id,
-                'description': request.cause,
+                'description': request.description,
                 'problem_description': request.description,
                 'request_id': request.id,
             })
         self.write({'state': 'run'})
         return order_id.id
-"""
+
     def action_done(self):
         self.write({'state': 'done', 'execution_date': time.strftime('%Y-%m-%d %H:%M:%S')})
         return True
@@ -200,7 +309,10 @@ class mro_order(models.Model):
 
     _order = 'date_execution'
 
-
+    def action_confirm(self):
+        for order in self:
+            order.write({'state': 'released'})
+        return 0
 
     @api.model
     def create(self, vals):

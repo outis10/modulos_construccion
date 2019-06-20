@@ -97,7 +97,7 @@ msgstr "Causa:"
 #. module: mro
 #: selection:mro.request,state:0
 msgid "Claim"
-msgstr "Reclamo"
+msgstr "Solicitada"
 
 #. module: mro
 #: field:mro.order,company_id:0

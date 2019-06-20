@@ -28,7 +28,7 @@ msgstr ""
 #. module: asset
 #: model:ir.model,name:asset.model_asset_asset
 msgid "Asset"
-msgstr ""
+msgstr "dfdfdddffdfdfd"
 
 #. module: asset
 #: field:asset.asset,property_stock_asset:0
@@ -147,7 +147,7 @@ msgstr ""
 #. module: asset
 #: model:ir.ui.menu,name:asset.menu_maintenance_config
 msgid "Configuration"
-msgstr ""
+msgstr "Configuración"
 
 #. module: asset
 #: field:asset.asset,create_uid:0
