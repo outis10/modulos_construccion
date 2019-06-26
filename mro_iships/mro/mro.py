@@ -91,7 +91,7 @@ class mro_audit(models.Model):
     audit_type_id = fields.Many2one('mro.audit_type', 'Tipo Auditoria', required=True,
                                     states={'draft': [('readonly', False)]})
 
-    description = fields.Text('Descripción', required=True, readonly=True, states={'draft': [('readonly', False)]})
+    description = fields.Text('Descripción', readonly=True, states={'draft': [('readonly', False)]})
     execution_date = fields.Datetime('Fecha solicitud', required=True, readonly=True,
                                      states={'draft': [('readonly', False)]},
                                      default=time.strftime('%Y-%m-%d %H:%M:%S'))

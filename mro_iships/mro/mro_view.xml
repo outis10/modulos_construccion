@@ -65,9 +65,12 @@
                         <notebook>
 
                             <page string="Hallazgos">
-                                <button name="open_one2many_request" type="object" class="oe_highlight" string="OPEN" icon="gtk-jump-to"/>
+                                <group>
+                                    <button name="open_one2many_request" type="object" class="oe_highlight" string="Agregar" />
+                                </group>
+
                                 <field name="mro_request_ids">
-                                    <tree string="Hallazgos Detectados" >
+                                    <tree string="Hallazgos Detectados" create="false" editable="false">
                                         <field name="name"/>
                                         <field name="state"/>
                                         <field name="audit_category_id"/>
