@@ -26,3 +26,8 @@ access_mro_audit_issue_manager,mro.audit_issue manager,model_mro_audit_issue,ass
 access_mro_audit_issue_user,mro.audit_issue user,model_mro_audit_issue,asset.group_mro_user,1,1,1,1
 access_mro_audit_issue_customer,mro.audit_issue customer,model_mro_audit_issue,asset.group_mro_customer,1,0,0,0
 access_mro_audit_issue_responsible,mro.request responsible,model_mro_audit_issue,asset.group_mro_responsible,1,0,0,0
+access_mro_audit_manager,mro.audit manager,model_mro_audit,asset.group_mro_manager,1,1,1,1
+access_mro_audit_user,mro.audit user,model_mro_audit,asset.group_mro_user,1,1,0,0
+access_mro_audit_customer,mro.audit customer,model_mro_audit,asset.group_mro_customer,1,1,0,0
+access_mro_audit_create,mro.audit create,model_mro_audit,mro.group_create_maintenance_request,0,0,1,0
+access_mro_audit_responsible,mro.audit responsible,model_mro_audit,asset.group_mro_responsible,1,1,1,0

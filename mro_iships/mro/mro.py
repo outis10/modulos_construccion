@@ -69,6 +69,83 @@ class mro_issue(models.Model):
     hallazgo = fields.Char('Hallazgo', size=64)
 
 
+class mro_audit(models.Model):
+    _name = 'mro.audit'
+    _description = 'Audit'
+    _inherit = ['mail.thread']
+
+    STATE_SELECTION = [
+        ('draft', 'Draft'),
+        ('done', 'Realizada'),
+        ('accepted', 'Aceptada'),
+
+    ]
+
+    name = fields.Char('Referencia', size=64)
+    state = fields.Selection(STATE_SELECTION, 'Status', readonly=True,
+                             track_visibility='onchange', default='draft')
+    asset_id = fields.Many2one('asset.asset', 'Activo', domain=[('category_id.name', '=', "Edificio")],
+                               required=True, readonly=True,
+                               states={'draft': [('readonly', False)]})
+
+    audit_type_id = fields.Many2one('mro.audit_type', 'Tipo Auditoria', required=True,
+                                    states={'draft': [('readonly', False)]})
+
+    description = fields.Text('Descripción', required=True, readonly=True, states={'draft': [('readonly', False)]})
+    execution_date = fields.Datetime('Fecha solicitud', required=True, readonly=True,
+                                     states={'draft': [('readonly', False)]},
+                                     default=time.strftime('%Y-%m-%d %H:%M:%S'))
+    create_user_id = fields.Many2one('res.users', 'Responsable', default=lambda self: self._uid)
+    mro_request_ids = fields.One2many('mro.request', 'mro_audit_id', string="Hallazgos", required=False, )
+
+    @api.onchange('audit_type_id')
+    def onchange_audit_type_id(self):
+        listids = []
+        if self.audit_type_id.mro_audit_category_ids:
+            for each in self.audit_type_id.mro_audit_category_ids:
+                listids.append(each.id)
+            print(listids)
+        return {'domain': {'audit_category_id': [('id', 'in', listids)]}}
+
+    @api.onchange('audit_category_id')
+    def onchange_audit_category_id(self):
+        listids = []
+        if self.audit_category_id.mro_audit_subcategory_ids:
+            for each in self.audit_category_id.mro_audit_subcategory_ids:
+                listids.append(each.id)
+            print(listids)
+        return {'domain': {'audit_subcategory_id': [('id', 'in', listids)]}}
+
+    @api.model
+    def create(self, vals):
+        if vals.get('name', '/') == '/':
+            vals['name'] = self.env['ir.sequence'].next_by_code('mro.audit') or '/'
+        return super(mro_audit, self).create(vals)
+
+    def open_one2many_request(self, vals):
+        context = {'default_asset_id': self.asset_id.id, 'default_mro_audit_id': self.id,
+                   'default_audit_type_id': self.audit_type_id.id}
+        print(context)
+        return {
+
+             'type': 'ir.actions.act_window',
+
+             'name': 'Hallazgos',
+
+             'view_type': 'form',
+
+             'view_mode': 'form',
+
+             'res_model': 'mro.request',
+
+#             'res_id': id[0],
+
+             'target': 'current',
+
+              'context':context,
+
+        }
+
 
 
 class mro_request(models.Model):
@@ -139,6 +216,8 @@ class mro_request(models.Model):
     breakdown = fields.Boolean('Breakdown', readonly=True, states={'draft': [('readonly', False)]}, default=False)
     create_user_id = fields.Many2one('res.users', 'Responsable', default=lambda self: self._uid)
 
+    mro_audit_id = fields.Many2one('mro.audit', 'Auditoria')
+
 
 
     @api.onchange('audit_type_id')
@@ -204,7 +283,7 @@ class mro_request(models.Model):
 
     @api.onchange('execution_date','state')
     def onchange_execution_date(self):
-        if self.state == 'draft' :
+        if self.state == 'draft':
             self.requested_date = self.execution_date
 
     def action_send(self):

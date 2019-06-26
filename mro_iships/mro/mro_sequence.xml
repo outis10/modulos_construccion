@@ -30,5 +30,15 @@
             <field name="number_next">1</field>
             <field name="number_increment">1</field>
         </record>
+
+        <!-- Sequences for Maintenance request -->
+        <record id="sequence_mro_audit" model="ir.sequence">
+            <field name="name">Maintenance Audit</field>
+            <field name="code">mro.audit</field>
+            <field name="prefix">AU</field>
+            <field name="padding">5</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+        </record>
     </data>
 </odoo>
