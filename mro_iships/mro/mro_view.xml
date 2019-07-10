@@ -136,7 +136,7 @@
                 <tree fonts="bold:message_unread==True" string="Maintenance Requests">
                     <field name="message_unread" invisible="1"/>
                     <field name="name"/>
-                    <field name="execution_date" string="Date"/>
+                    <field name="requested_date" string="Date"/>
                     <field name="state"/>
                     <field name="mro_audit_id"/>
                     <field name="asset_id"/>
@@ -177,8 +177,8 @@
                             <group>
                                 <field name="audit_area_afectacion_id" widget="selection"/>
                                 <field name="audit_issue_id" widget="selection"/>
-                                <!--<field name="requested_date" attrs="{'invisible':[('breakdown','=',True),('state','=','draft')],'readonly':[('state','!=','draft')]}"/>-->
-                                <field name="execution_date"/>
+                                <field name="requested_date" attrs="{'readonly':[('state','!=','draft')]}"/>
+                                <!--field name="execution_date"/>-->
                                 <field name="issue_level"/>
                                 <field name="create_user_id" readonly="1"/>
                             </group>

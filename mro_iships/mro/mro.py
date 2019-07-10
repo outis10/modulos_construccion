@@ -98,23 +98,7 @@ class mro_audit(models.Model):
     create_user_id = fields.Many2one('res.users', 'Responsable', default=lambda self: self._uid)
     mro_request_ids = fields.One2many('mro.request', 'mro_audit_id', string="Hallazgos", required=False, )
 
-    @api.onchange('audit_type_id')
-    def onchange_audit_type_id(self):
-        listids = []
-        if self.audit_type_id.mro_audit_category_ids:
-            for each in self.audit_type_id.mro_audit_category_ids:
-                listids.append(each.id)
-            print(listids)
-        return {'domain': {'audit_category_id': [('id', 'in', listids)]}}
 
-    @api.onchange('audit_category_id')
-    def onchange_audit_category_id(self):
-        listids = []
-        if self.audit_category_id.mro_audit_subcategory_ids:
-            for each in self.audit_category_id.mro_audit_subcategory_ids:
-                listids.append(each.id)
-            print(listids)
-        return {'domain': {'audit_subcategory_id': [('id', 'in', listids)]}}
 
     @api.model
     def create(self, vals):
@@ -218,44 +202,65 @@ class mro_request(models.Model):
 
     mro_audit_id = fields.Many2one('mro.audit', 'Auditoria')
 
-
-
     @api.onchange('audit_type_id')
     def onchange_audit_type_id(self):
-        listids = []
-        if self.audit_type_id.mro_audit_category_ids:
-            for each in self.audit_type_id.mro_audit_category_ids:
-                listids.append(each.id)
-            print(listids)
-        return {'domain': {'audit_category_id': [('id', 'in', listids)]}}
-
+        if self.audit_type_id:
+            self.env.cr.execute(
+                "Select distinct mro_audit_category_id from mro_audit_issue " +
+                "   where mro_audit_type_id=" + str(self.audit_type_id.id))
+            values =self.env.cr.dictfetchall()
+            category_ids = []
+            for res in values:
+                category_ids.append(res['mro_audit_category_id'])
+            if category_ids:
+                print(category_ids)
+                return {'domain': {'audit_category_id': [('id', 'in', category_ids)]}}
+            else:
+                return {'domain': {'audit_category_id': [('id', '=', -1)]}}
+        else:
+            return {'domain': {'audit_category_id': [('id', '=', -1)]}}
 
     @api.onchange('audit_category_id')
     def onchange_audit_category_id(self):
-        listids = []
-        if self.audit_category_id.mro_audit_subcategory_ids:
-            for each in self.audit_category_id.mro_audit_subcategory_ids:
-                listids.append(each.id)
-            print(listids)
-        return {'domain': {'audit_subcategory_id': [('id', 'in', listids)]}}
+        print(self.audit_category_id)
+        if self.audit_type_id and self.audit_category_id:
+            self.env.cr.execute(
+                "Select distinct mro_audit_subcategory_id from mro_audit_issue " +
+                "   where mro_audit_type_id=" + str(self.audit_type_id.id) +
+                "   and mro_audit_category_id=" + str(self.audit_category_id.id))
+            values = self.env.cr.dictfetchall()
+            subcategory_ids = []
+            for res in values:
+                subcategory_ids.append(res['mro_audit_subcategory_id'])
+            if subcategory_ids:
+                print(subcategory_ids)
+                return {'domain': {'audit_subcategory_id': [('id', 'in', subcategory_ids)]}}
+            else:
+                return {'domain': {'audit_subcategory_id': [('id', '=', -1)]}}
+        else:
+            return {'domain': {'audit_subcategory_id': [('id', '=', -1)]}}
 
     @api.onchange('audit_subcategory_id')
     def onchange_audit_subcategory_id(self):
-        print('Entrnado al metodo', self.audit_subcategory_id.id)
+        print(self.audit_subcategory_id)
         if self.audit_type_id and self.audit_category_id and self.audit_subcategory_id:
-            issues = self.env['mro.audit_issue'].search(['&', ('mro_audit_type_id.id', '=', self.audit_type_id.id),
-                                                         ('mro_audit_category_id.id', '=', self.audit_category_id.id),
-                                                         ('mro_audit_subcategory_id.id', '=', self.audit_subcategory_id.id)])
-            print('issue:', issues)
-            listids = []
-            readylistids = []
-            if issues:
-                for each in issues:
-                    listids.append(each.mro_audit_area_afectacion_id.id)
-                print(listids)
-                readylistids = list(dict.fromkeys(listids))
-                print(readylistids)
-            return {'domain': {'audit_area_afectacion_id': [('id', 'in', listids)]}}
+            self.env.cr.execute(
+                "Select distinct mro_audit_area_afectacion_id from mro_audit_issue " +
+                "   where mro_audit_type_id=" + str(self.audit_type_id.id) +
+                "   and mro_audit_category_id=" + str(self.audit_category_id.id) +
+                "   and mro_audit_subcategory_id=" + str(self.audit_subcategory_id.id))
+            values = self.env.cr.dictfetchall()
+            afectacion_ids = []
+            for res in values:
+                afectacion_ids.append(res['mro_audit_area_afectacion_id'])
+            if afectacion_ids:
+                print(afectacion_ids)
+                return {'domain': {'audit_area_afectacion_id': [('id', 'in', afectacion_ids)]}}
+            else:
+                return {'domain': {'audit_area_afectacion_id': [('id', '=', -1)]}}
+        else:
+            return {'domain': {'audit_area_afectacion_id': [('id', '=', -1)]}}
+
 
     @api.onchange('audit_area_afectacion_id')
     def onchange_audit_area_afectacion_id(self):
@@ -276,6 +281,8 @@ class mro_request(models.Model):
                 readylistids = list(dict.fromkeys(listids))
                 print(readylistids)
             return {'domain': {'audit_issue_id': [('id', 'in', listids)]}}
+        else:
+            return {'domain': {'audit_issue_id': [('id', '=', -1)]}}
 
     @api.onchange('requested_date')
     def onchange_requested_date(self):
